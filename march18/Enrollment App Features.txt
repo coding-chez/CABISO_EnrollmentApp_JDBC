@@ -1,0 +1,9 @@
+Enrollment App Features:
+
+1. Store enrolled students in db.
+2. Load students from db to list.
+3. Courses shall come from db, not hardcoded.
+4. Edit data of students.
+5. Delete data of students.
+6. Have GUI for homepage to select whether to enroll students or modify courses.
+7. For modify courses, have GUI to CRUD courses.
