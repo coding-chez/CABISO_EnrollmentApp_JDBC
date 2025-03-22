@@ -1,14 +1,29 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import java.lang.*?>
-<?import java.util.*?>
-<?import javafx.scene.*?>
+<?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<AnchorPane xmlns="http://javafx.com/javafx"
-            xmlns:fx="http://javafx.com/fxml"
-            fx:controller="com.example.enrollmentdatabase.EnrollStudent"
-            prefHeight="400.0" prefWidth="600.0">
+<VBox spacing="10" alignment="CENTER" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.example.enrollmentdatabase.EnrollStudentController">
 
-</AnchorPane>
+    <padding>
+        <Insets top="20" right="20" bottom="20" left="20"/>
+    </padding>
+
+    <Label text="Enroll Student"/>
+    <TextField fx:id="tfName" promptText="Student Name"/>
+    <ComboBox fx:id="cbCourse" promptText="Select Course"/>
+
+    <HBox spacing="10">
+        <Button text="Enroll" onAction="#onEnrollClicked" minWidth="80"/>
+        <Button text="Update" fx:id="btnUpdate" onAction="#onUpdateClicked" disable="true" minWidth="80"/>
+        <Button text="Remove" fx:id="btnRemove" onAction="#onRemoveClicked" minWidth="80"/>
+    </HBox>
+
+    <ListView fx:id="lvStudents"/>
+
+    <!-- FIXED: Added fx:id="btnBack" -->
+    <Button fx:id="btnBack" text="Back" onAction="#goBack" minWidth="80"/>
+
+</VBox>
