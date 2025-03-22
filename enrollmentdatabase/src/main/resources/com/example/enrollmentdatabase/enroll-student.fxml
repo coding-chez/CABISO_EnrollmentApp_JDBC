@@ -23,7 +23,8 @@
 
     <ListView fx:id="lvStudents"/>
 
-    <!-- FIXED: Added fx:id="btnBack" -->
+    <Button fx:id="btnLoadStudents" text="Load Students from Database" onAction="#onLoadStudentsClicked" minWidth="200"/>
+
     <Button fx:id="btnBack" text="Back" onAction="#goBack" minWidth="80"/>
 
 </VBox>

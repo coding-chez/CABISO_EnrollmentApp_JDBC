@@ -131,9 +131,13 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.stage.Stage;
 
+import java.io.IOException;
 import java.util.List;
 
 public class EnrollStudentController {
@@ -148,7 +152,7 @@ public class EnrollStudentController {
     private ListView<Student> lvStudents;
 
     @FXML
-    private Button btnBack; // Added this for the Back button
+    private Button btnBack, btnUpdate, btnRemove, btnLoadStudents;
 
     private ObservableList<Student> studentList;
 
@@ -156,6 +160,20 @@ public class EnrollStudentController {
     public void initialize() {
         loadCourses();
         loadStudents();
+
+        studentList = FXCollections.observableArrayList();
+        lvStudents.setItems(studentList);
+
+        btnUpdate.setDisable(true);
+        btnRemove.setDisable(true);
+
+        lvStudents.getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection) -> {
+            boolean isStudentSelected = newSelection != null;
+            btnUpdate.setDisable(!isStudentSelected);
+            btnRemove.setDisable(!isStudentSelected);
+        });
+
+        System.out.println("Initialization complete. ListView connected.");
     }
 
     private void loadCourses() {
@@ -188,59 +206,61 @@ public class EnrollStudentController {
     }
 
     @FXML
-    public void onEnrollClicked(ActionEvent actionEvent) {
-        String name = tfName.getText().trim();
-        Courses selectedCourse = cbCourse.getSelectionModel().getSelectedItem();
-
-        if (name.isEmpty() || selectedCourse == null) {
-            showAlert("Invalid Input", "Please enter a valid name and select a course.");
-            return;
-        }
-
-        // Add student to DB
-        StudentDBHandler.addStudent(name, selectedCourse.getId());
-
-        // Refresh list
+    public void onLoadStudentsClicked(ActionEvent actionEvent) {
         loadStudents();
-        tfName.clear();
-        cbCourse.getSelectionModel().selectFirst();
+        System.out.println("Student list reloaded.");
+    }
+
+    @FXML
+    public void onEnrollClicked(ActionEvent actionEvent) {
+        try {
+            String name = tfName.getText().trim();
+            Courses selectedCourse = cbCourse.getSelectionModel().getSelectedItem();
+
+            if (name.isEmpty() || selectedCourse == null) {
+                showAlert("Invalid Input", "Please enter a valid name and select a course.");
+                return;
+            }
+
+            System.out.println("Attempting to enroll: " + name + " in " + selectedCourse.getName());
+
+            StudentDBHandler.addStudent(name, selectedCourse.getName());
+
+            System.out.println("Enrollment successful!");
+            loadStudents();
+
+            tfName.clear();
+            cbCourse.getSelectionModel().selectFirst();
+        } catch (Exception e) {
+            e.printStackTrace();
+            showAlert("Enrollment Error", "An error occurred: " + e.getMessage());
+        }
     }
 
     @FXML
     public void onUpdateClicked(ActionEvent actionEvent) {
-        int selectedIndex = lvStudents.getSelectionModel().getSelectedIndex();
-        if (selectedIndex == -1) {
-            showAlert("Selection Required", "Please select a student to update.");
-            return;
-        }
-
         Student selectedStudent = lvStudents.getSelectionModel().getSelectedItem();
         Courses selectedCourse = cbCourse.getSelectionModel().getSelectedItem();
 
-        if (selectedCourse == null) {
-            showAlert("Invalid Course", "Please select a valid course.");
+        if (selectedStudent == null || selectedCourse == null || selectedCourse.getId() == 0) {
+            showAlert("Invalid Selection", "Please select a valid student and course.");
             return;
         }
 
-        // Update student course in DB
         StudentDBHandler.updateStudentCourse(selectedStudent.getId(), selectedCourse.getId());
-
-        // Refresh list
         loadStudents();
     }
 
     @FXML
     public void onRemoveClicked(ActionEvent actionEvent) {
-        int selectedIndex = lvStudents.getSelectionModel().getSelectedIndex();
-        if (selectedIndex == -1) {
+        Student selectedStudent = lvStudents.getSelectionModel().getSelectedItem();
+
+        if (selectedStudent == null) {
             showAlert("Selection Required", "Please select a student to remove.");
             return;
         }
 
-        Student selectedStudent = studentList.get(selectedIndex);
         StudentDBHandler.deleteStudent(selectedStudent.getId());
-
-        // Refresh list
         loadStudents();
     }
 
@@ -255,11 +275,13 @@ public class EnrollStudentController {
     @FXML
     public void goBack(ActionEvent actionEvent) {
         try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("hello-view.fxml"));
+            Parent root = loader.load();
             Stage stage = (Stage) btnBack.getScene().getWindow();
-            stage.close();
-        } catch (Exception e) {
+            stage.setScene(new Scene(root));
+        } catch (IOException e) {
             e.printStackTrace();
-            showAlert("Error", "Unable to go back.");
+            showAlert("Navigation Error", "Unable to go back to the home screen.");
         }
     }
 }

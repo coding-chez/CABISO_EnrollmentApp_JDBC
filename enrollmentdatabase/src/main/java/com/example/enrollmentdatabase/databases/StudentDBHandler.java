@@ -7,9 +7,8 @@ import java.util.List;
 
 public class StudentDBHandler {
 
-    // Insert student into database
     public static void insertStudent(Student student) {
-        String sql = "INSERT INTO students (name, course_id) VALUES (?, ?)";
+        String sql = "INSERT INTO students (name, course) VALUES (?, ?)";
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setString(1, student.getName());
@@ -20,8 +19,6 @@ public class StudentDBHandler {
         }
     }
 
-
-    // Retrieve all students
     public static List<Student> getAllStudents() {
         List<Student> students = new ArrayList<>();
         String sql = "SELECT students.id, students.name, courses.id AS course_id, courses.course_name " +
@@ -45,7 +42,6 @@ public class StudentDBHandler {
         return students;
     }
 
-    // Update student name
     public static void updateStudent(Student student) {
         String sql = "UPDATE students SET name = ? WHERE id = ?";
 
@@ -59,7 +55,6 @@ public class StudentDBHandler {
         }
     }
 
-    // Update student's course
     public static void updateStudentCourse(int studentId, int newCourseId) {
         String sql = "UPDATE students SET course_id = ? WHERE id = ?";
 
@@ -73,7 +68,6 @@ public class StudentDBHandler {
         }
     }
 
-    // Delete a student by ID
     public static void deleteStudent(int studentId) {
         String sql = "DELETE FROM students WHERE id = ?";
 
@@ -86,21 +80,31 @@ public class StudentDBHandler {
         }
     }
 
-    // Overloaded addStudent method
-    public static void addStudent(String name, int courseId) {
-        String sql = "INSERT INTO students (name, course_id) VALUES (?, ?)";
+    public static void addStudent(String name, String courseName) {
+        String sql = "INSERT INTO students (name, course) VALUES (?, ?)";
 
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            System.out.println("SQL Query: " + sql);
+            System.out.println("Parameters: Name = " + name + ", Course = " + courseName);
+
             pstmt.setString(1, name);
-            pstmt.setInt(2, courseId);
-            pstmt.executeUpdate();
+            pstmt.setString(2, courseName); // Store course name instead of ID
+
+            int rowsAffected = pstmt.executeUpdate();
+            if (rowsAffected > 0) {
+                System.out.println("Student added successfully!");
+            } else {
+                System.out.println("Error: Student was not added to the database.");
+            }
         } catch (SQLException e) {
+            System.out.println("SQL Error: " + e.getMessage());
             e.printStackTrace();
         }
     }
 
-    // Overloaded updateStudent method
+
     public void updateStudent(int id, String newName, int courseId) {
         String sql = "UPDATE students SET name = ?, course_id = ? WHERE id = ?";
 

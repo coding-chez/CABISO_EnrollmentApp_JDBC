@@ -1,119 +1,3 @@
-//package com.example.enrollmentdatabase;
-//
-//import com.example.enrollmentdatabase.databases.InsertCourse;
-//import com.example.enrollmentdatabase.databases.RetrieveCourses;
-//import com.example.enrollmentdatabase.databases.UpdateCourse;
-//import com.example.enrollmentdatabase.databases.DeleteCourse;
-//import com.example.enrollmentdatabase.model.Courses;
-//import javafx.collections.FXCollections;
-//import javafx.collections.ObservableList;
-//import javafx.event.ActionEvent;
-//import javafx.fxml.FXML;
-//import javafx.scene.control.*;
-//
-//import java.util.List;
-//
-//public class ManageCoursesController {
-//
-//    @FXML
-//    private TextField tfCourseName;
-//
-//    @FXML
-//    private TextField tfCourseId;
-//
-//    @FXML
-//    private ListView<Courses> lvCourses;
-//
-//    @FXML
-//    private Button btnAddCourse, btnUpdateCourse, btnDeleteCourse;
-//
-//    private ObservableList<Courses> courseList;
-//
-//    @FXML
-//    public void initialize() {
-//        loadCourses(); //
-//        setupListViewListener();
-//    }
-//
-//    private void loadCourses() {
-//        List<Courses> courses = RetrieveCourses.getCourses();
-//        courseList = FXCollections.observableArrayList(courses);
-//        lvCourses.setItems(courseList);
-//    }
-//
-//    private void setupListViewListener() {
-//        lvCourses.getSelectionModel().selectedItemProperty().addListener((obs, oldVal, newVal) -> {
-//            if (newVal != null) {
-//                tfCourseId.setText(String.valueOf(newVal.getCourseId()));
-//                tfCourseName.setText(newVal.getCourseName());
-//            }
-//        });
-//    }
-//
-//    @FXML
-//    private void onAddCourseClicked() {
-//        String courseName = tfCourseName.getText().trim();
-//
-//        if (courseName.isEmpty()) {
-//            showAlert("Error", "Course name cannot be empty.");
-//            return;
-//        }
-//
-//        InsertCourse.insertCourse(courseName);
-//        System.out.println("Course Added: " + courseName);
-//
-//        loadCourses(); // Refresh list
-//        tfCourseName.clear();
-//    }
-//
-//    @FXML
-//    private void onUpdateCourseClicked() {
-//        String newName = tfCourseName.getText().trim();
-//        String courseIdStr = tfCourseId.getText().trim();
-//
-//        if (newName.isEmpty() || courseIdStr.isEmpty()) {
-//            showAlert("Error", "Select a course and enter a new name.");
-//            return;
-//        }
-//
-//        int courseId = Integer.parseInt(courseIdStr);
-//        UpdateCourse.updateCourse(courseId, newName);
-//        System.out.println("Course Updated: " + newName);
-//
-//        loadCourses(); // Refresh list
-//        tfCourseId.clear();
-//        tfCourseName.clear();
-//    }
-//
-//    @FXML
-//    private void onDeleteCourseClicked() {
-//        String courseIdStr = tfCourseId.getText().trim();
-//
-//        if (courseIdStr.isEmpty()) {
-//            showAlert("Error", "Select a course to delete.");
-//            return;
-//        }
-//
-//        int courseId = Integer.parseInt(courseIdStr);
-//        DeleteCourse.deleteCourse(courseId);
-//        System.out.println("Course Deleted: ID " + courseId);
-//
-//        loadCourses(); // Refresh list
-//        tfCourseId.clear();
-//        tfCourseName.clear();
-//    }
-//
-//    private void showAlert(String title, String message) {
-//        Alert alert = new Alert(Alert.AlertType.ERROR);
-//        alert.setTitle(title);
-//        alert.setContentText(message);
-//        alert.showAndWait();
-//    }
-//
-//    public void onRemoveCourseClicked(ActionEvent actionEvent) {
-//
-//    }
-//}
 package com.example.enrollmentdatabase;
 
 import com.example.enrollmentdatabase.databases.CourseDBHandler;
@@ -122,8 +6,13 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.stage.Stage;
 
+import java.io.IOException;
 import java.util.List;
 
 public class ManageCoursesController {
@@ -135,7 +24,7 @@ public class ManageCoursesController {
     private ListView<Courses> lvCourses;
 
     @FXML
-    private Button btnDelete;
+    private Button btnDelete, btnBack;
 
     @FXML
     public void initialize() {
@@ -143,7 +32,7 @@ public class ManageCoursesController {
         btnDelete.setDisable(true);
 
         lvCourses.getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection) -> {
-            btnDelete.setDisable(newSelection == null);
+            btnDelete.setDisable(newSelection == null || newSelection.getId() == 0);
         });
     }
 
@@ -158,8 +47,10 @@ public class ManageCoursesController {
         String courseName = tfCourseName.getText().trim();
         if (!courseName.isEmpty()) {
             CourseDBHandler.addCourse(courseName);
-            loadCourses(); // Refresh list
+            loadCourses();
             tfCourseName.clear();
+        } else {
+            showAlert("Input Required", "Please enter a course name.");
         }
     }
 
@@ -168,11 +59,35 @@ public class ManageCoursesController {
         Courses selectedCourse = lvCourses.getSelectionModel().getSelectedItem();
         if (selectedCourse != null && selectedCourse.getId() != 0) {
             CourseDBHandler.deleteCourse(selectedCourse.getId());
-            loadCourses(); // Refresh list
+            loadCourses();
+        } else {
+            showAlert("Invalid Selection", "Cannot delete the default 'Select Course' option.");
         }
     }
 
-    public void goBack(ActionEvent actionEvent) {
-
+    private void showAlert(String title, String message) {
+        Alert alert = new Alert(Alert.AlertType.WARNING);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.showAndWait();
     }
+
+    @FXML
+    public void goBack(ActionEvent actionEvent) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/example/enrollmentdatabase/hello-view.fxml"));
+            Parent root = loader.load();
+
+            Stage stage = (Stage) btnBack.getScene().getWindow();
+            stage.setScene(new Scene(root));
+            stage.setTitle("Enrollment System");
+            stage.show();
+        } catch (IOException e) {
+            e.printStackTrace();
+            showAlert("Navigation Error", "Unable to go back to the home screen.");
+        }
+    }
+
+
 }

@@ -17,7 +17,6 @@ public class CourseDBHandler {
 
             System.out.println("Fetching courses from database...");
 
-            // Default placeholder option
             courses.add(new Courses(0, "Select Course"));
 
             while (rs.next()) {
