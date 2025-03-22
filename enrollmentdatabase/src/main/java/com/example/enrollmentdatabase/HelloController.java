@@ -1,16 +1,10 @@
 package com.example.enrollmentdatabase;
 
-import com.example.enrollmentdatabase.Student;
+import com.example.enrollmentdatabase.model.Student;
 import javafx.collections.ListChangeListener;
 import javafx.event.ActionEvent;
-import javafx.event.Event;
-import javafx.event.EventHandler;
-import javafx.event.EventType;
 import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class HelloController {
     public TextField tfNumber;

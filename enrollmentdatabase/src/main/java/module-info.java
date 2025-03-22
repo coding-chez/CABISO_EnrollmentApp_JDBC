@@ -6,4 +6,6 @@ module com.example.enrollmentdatabase {
 
     opens com.example.enrollmentdatabase to javafx.fxml;
     exports com.example.enrollmentdatabase;
+    exports com.example.enrollmentdatabase.model;
+    opens com.example.enrollmentdatabase.model to javafx.fxml;
 }
